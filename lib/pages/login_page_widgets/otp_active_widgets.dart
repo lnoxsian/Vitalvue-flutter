@@ -6,6 +6,7 @@ class OTPActiveWidgets {
     bool isTablet,
     List<TextEditingController> controllers,
     List<FocusNode> focusNodes,
+    VoidCallback onOtpChanged,
   ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -70,6 +71,7 @@ class OTPActiveWidgets {
               } else if (value.isEmpty && index > 0) {
                 focusNodes[index - 1].requestFocus();
               }
+              onOtpChanged();
             },
           ),
         ),
@@ -77,7 +79,11 @@ class OTPActiveWidgets {
     );
   }
 
-  static Widget buildVerifyButton(bool isTablet) {
+  static Widget buildVerifyButton(
+    bool isTablet, {
+    required VoidCallback onPressed,
+    required bool enabled,
+  }) {
     return SizedBox(
       width: double.infinity,
       height: AuthConstants.getResponsiveValue(
@@ -86,7 +92,7 @@ class OTPActiveWidgets {
         AuthConstants.buttonHeightPhone,
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: AuthConstants.accentColor,
           elevation: 0,

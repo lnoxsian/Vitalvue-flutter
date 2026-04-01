@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'otp_verification_page.dart';
 import 'auth_constants.dart';
 
 class LoginActiveWidgets {
@@ -170,8 +169,7 @@ class LoginActiveWidgets {
 
   static Widget buildGenerateOtpButton(
     bool isTablet,
-    BuildContext context,
-    String employeeId,
+    VoidCallback onPressed,
   ) {
     return SizedBox(
       width: double.infinity,
@@ -181,29 +179,7 @@ class LoginActiveWidgets {
         AuthConstants.buttonHeightPhone,
       ),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  OTPVerificationPage(employeeId: employeeId),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
-            ),
-          );
-        },
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AuthConstants.accentColor,
           elevation: 0,

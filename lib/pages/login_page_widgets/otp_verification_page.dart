@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'otp_active_widgets.dart';
 import 'login_active_widgets.dart';
 import 'auth_constants.dart';
+import '../../services/local_auth_service.dart';
+import '../home_dashboard_page.dart';
 
 class OTPVerificationPage extends StatefulWidget {
   final String employeeId;
 
   const OTPVerificationPage({
-    Key? key,
+    super.key,
     required this.employeeId,
-  }) : super(key: key);
+  });
 
   @override
   State<OTPVerificationPage> createState() => _OTPVerificationPageState();
@@ -25,6 +27,32 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     6,
     (index) => FocusNode(),
   );
+
+  String get _enteredOtp =>
+      _otpControllers.map((controller) => controller.text).join();
+
+  bool get _isOtpComplete =>
+      _otpControllers.every((controller) => controller.text.isNotEmpty);
+
+  void _handleVerify() {
+    if (!LocalAuthService.canLogin(
+      employeeId: widget.employeeId,
+      otp: _enteredOtp,
+    )) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid OTP. For demo use 123456.'),
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => const HomeDashboardPage(),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -68,7 +96,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                         height: 200,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                         ),
                       ),
                     ),
@@ -142,6 +170,7 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                             isTablet,
                             _otpControllers,
                             _otpFocusNodes,
+                            () => setState(() {}),
                           ),
                           SizedBox(
                             height: AuthConstants.getResponsiveValue(
@@ -201,7 +230,11 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
                           ),
 
                           // Verify & Log In Button
-                          OTPActiveWidgets.buildVerifyButton(isTablet),
+                          OTPActiveWidgets.buildVerifyButton(
+                            isTablet,
+                            onPressed: _handleVerify,
+                            enabled: _isOtpComplete,
+                          ),
                           SizedBox(
                             height: AuthConstants.getResponsiveValue(
                               isTablet,

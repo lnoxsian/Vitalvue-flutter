@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login_page_widgets/login_active_widgets.dart';
 import 'login_page_widgets/auth_constants.dart';
+import 'login_page_widgets/otp_verification_page.dart';
+import '../services/local_auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +14,39 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _employeeIdController = TextEditingController();
   bool _staySignedIn = false;
+
+  void _handleGenerateOtp() {
+    final employeeId = _employeeIdController.text.trim();
+    if (!LocalAuthService.canRequestOtp(employeeId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Demo login supports only user Maxel.R'),
+        ),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            OTPVerificationPage(employeeId: employeeId),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+          final tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -198,8 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                           // Generate OTP Button
                           LoginActiveWidgets.buildGenerateOtpButton(
                             isTablet,
-                            context,
-                            _employeeIdController.text,
+                            _handleGenerateOtp,
                           ),
                           SizedBox(
                             height: AuthConstants.getResponsiveValue(
