@@ -49,6 +49,8 @@ class HomeDashboardPage extends StatelessWidget {
                       spo2: '85%',
                       bp: '171/126',
                       temp: '38.4',
+                      status: 'Disconnected',
+                      battery: '80%',
                     ),
                     const SizedBox(height: 16),
                     const PatientDetailCardWidget(
@@ -59,6 +61,8 @@ class HomeDashboardPage extends StatelessWidget {
                       spo2: '88%',
                       bp: '158/113',
                       temp: '36.9',
+                      status: 'Connected',
+                      battery: '95%',
                     ),
                   ],
                 ),

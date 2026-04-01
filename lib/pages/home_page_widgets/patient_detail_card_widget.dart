@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class PatientDetailCardWidget extends StatelessWidget {
+class PatientDetailCardWidget extends StatefulWidget {
   final String name;
   final String id;
   final String roomNo;
@@ -8,6 +8,8 @@ class PatientDetailCardWidget extends StatelessWidget {
   final String spo2;
   final String bp;
   final String temp;
+  final String status;
+  final String battery;
 
   const PatientDetailCardWidget({
     super.key,
@@ -18,7 +20,17 @@ class PatientDetailCardWidget extends StatelessWidget {
     required this.spo2,
     required this.bp,
     required this.temp,
+    required this.status,
+    required this.battery,
   });
+
+  @override
+  State<PatientDetailCardWidget> createState() =>
+      _PatientDetailCardWidgetState();
+}
+
+class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
+  bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +65,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        widget.name,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 26,
@@ -62,7 +74,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        'Id: $id',
+                        'Id: ${widget.id}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -71,7 +83,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'R.No: $roomNo',
+                        'R.No: ${widget.roomNo}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -86,7 +98,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                 Expanded(
                   child: _buildMetricCard(
                     title: 'Heart Rate',
-                    value: heartRate,
+                    value: widget.heartRate,
                     unit: 'bpm',
                     icon: Icons.monitor_heart_outlined,
                     iconBgColor: const Color(0xFF2ECA71),
@@ -96,7 +108,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                 Expanded(
                   child: _buildMetricCard(
                     title: 'SpO2',
-                    value: spo2.replaceAll('%', ''),
+                    value: widget.spo2.replaceAll('%', ''),
                     unit: '%',
                     icon: Icons.air,
                     iconBgColor: const Color(0xFF8B5CF6),
@@ -106,7 +118,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                 Expanded(
                   child: _buildMetricCard(
                     title: 'BP Trend',
-                    value: bp,
+                    value: widget.bp,
                     unit: 'mmHg',
                     icon: Icons.show_chart,
                     iconBgColor: const Color(0xFFEC4899),
@@ -116,7 +128,7 @@ class PatientDetailCardWidget extends StatelessWidget {
                 Expanded(
                   child: _buildMetricCard(
                     title: 'Temp',
-                    value: temp,
+                    value: widget.temp,
                     unit: '°C',
                     icon: Icons.thermostat_outlined,
                     iconBgColor: const Color(0xFF3B82F6),
@@ -139,8 +151,8 @@ class PatientDetailCardWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Row(
-                        children: const [
-                          Text(
+                        children: [
+                          const Text(
                             'Status',
                             style: TextStyle(
                               color: Colors.white,
@@ -148,11 +160,13 @@ class PatientDetailCardWidget extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Text(
-                            'Disconnected',
+                            widget.status,
                             style: TextStyle(
-                              color: Color(0xFFFF5A5A),
+                              color: widget.status.toLowerCase() == 'stable'
+                                  ? const Color(0xFF44D17A)
+                                  : const Color(0xFFFF5A5A),
                               fontSize: 14,
                             ),
                           ),
@@ -180,16 +194,16 @@ class PatientDetailCardWidget extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
-                              children: const [
-                                Icon(
+                              children: [
+                                const Icon(
                                   Icons.battery_full,
                                   color: Color(0xFF44D17A),
                                   size: 14,
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Text(
-                                  '80%',
-                                  style: TextStyle(
+                                  widget.battery,
+                                  style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
                                   ),
@@ -206,11 +220,23 @@ class PatientDetailCardWidget extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.1),
                       ),
                       const SizedBox(height: 8),
-                      const Center(
-                        child: Icon(
-                          Icons.keyboard_arrow_up,
-                          color: Colors.white54,
-                          size: 20,
+                      // Arrow button
+                      Center(
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          icon: Icon(
+                            _isExpanded
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            color: Colors.white54,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isExpanded = !_isExpanded;
+                            });
+                          },
                         ),
                       ),
                     ],
@@ -219,93 +245,106 @@ class PatientDetailCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          Divider(color: Colors.white.withValues(alpha: 0.1), thickness: 1),
-          const SizedBox(height: 20),
-          // Bottom row
-          Row(
-            children: [
-              Container(
-                height: 52,
-                width: 220,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC79A54),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Flag Doctor',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: !_isExpanded
+                ? const SizedBox.shrink()
+                : Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Divider(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        thickness: 1,
+                      ),
+                      const SizedBox(height: 20),
+                      // Bottom row
+                      Row(
+                        children: [
+                          Container(
+                            height: 52,
+                            width: 220,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFC79A54),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Flag Doctor',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _buildBadge(
+                                    'NEWS2',
+                                    'Score 10',
+                                    const Color(0xFFFF5A5A),
+                                    Icons.show_chart,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildBadge(
+                                    'AF Warning',
+                                    'Normal',
+                                    const Color(0xFF44D17A),
+                                    Icons.bolt,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildBadge(
+                                    'Stroke Risk',
+                                    'High',
+                                    const Color(0xFFFF5A5A),
+                                    Icons.psychology,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildBadge(
+                                    'Seizure Risk',
+                                    'High',
+                                    const Color(0xFFFF5A5A),
+                                    Icons.face_retouching_natural,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Container(
+                            height: 52,
+                            width: 220,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.2),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Take Action',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildBadge(
-                        'NEWS2',
-                        'Score 10',
-                        const Color(0xFFFF5A5A),
-                        Icons.show_chart,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildBadge(
-                        'AF Warning',
-                        'Normal',
-                        const Color(0xFF44D17A),
-                        Icons.bolt,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildBadge(
-                        'Stroke Risk',
-                        'High',
-                        const Color(0xFFFF5A5A),
-                        Icons.psychology,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildBadge(
-                        'Seizure Risk',
-                        'High',
-                        const Color(0xFFFF5A5A),
-                        Icons.face_retouching_natural,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              Container(
-                height: 52,
-                width: 220,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Take Action',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
