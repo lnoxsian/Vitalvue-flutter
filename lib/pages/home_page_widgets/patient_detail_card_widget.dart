@@ -120,7 +120,7 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                     title: 'BP Trend',
                     value: widget.bp,
                     unit: 'mmHg',
-                    icon: Icons.show_chart,
+                    icon: Icons.trending_up,
                     iconBgColor: const Color(0xFFEC4899),
                   ),
                 ),
@@ -138,9 +138,11 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                 // Right Status Column
                 Container(
                   width: 220,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
+                  padding: const EdgeInsets.only(
+                    top: 20,
+                    bottom: 8,
+                    left: 16,
+                    right: 16,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.04),
@@ -214,12 +216,6 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                         ],
                       ),
                       const Spacer(),
-                      Container(
-                        width: double.infinity,
-                        height: 1,
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                      const SizedBox(height: 8),
                       // Arrow button
                       Center(
                         child: IconButton(
