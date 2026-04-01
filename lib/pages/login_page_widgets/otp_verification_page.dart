@@ -1,21 +1,39 @@
 import 'package:flutter/material.dart';
-import 'login_page_widgets/login_active_widgets.dart';
-import 'login_page_widgets/auth_constants.dart';
+import 'otp_active_widgets.dart';
+import 'login_active_widgets.dart';
+import 'auth_constants.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class OTPVerificationPage extends StatefulWidget {
+  final String employeeId;
+
+  const OTPVerificationPage({
+    Key? key,
+    required this.employeeId,
+  }) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<OTPVerificationPage> createState() => _OTPVerificationPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _employeeIdController = TextEditingController();
-  bool _staySignedIn = false;
+class _OTPVerificationPageState extends State<OTPVerificationPage> {
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
+
+  final List<FocusNode> _otpFocusNodes = List.generate(
+    6,
+    (index) => FocusNode(),
+  );
 
   @override
   void dispose() {
-    _employeeIdController.dispose();
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    for (var node in _otpFocusNodes) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -50,13 +68,13 @@ class _LoginPageState extends State<LoginPage> {
                         height: 200,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.grey.withValues(alpha: 0.1),
+                          color: Colors.grey.withOpacity(0.1),
                         ),
                       ),
                     ),
                   ),
                 ),
-              // Right side - Login form
+              // Right side - OTP form
               Expanded(
                 flex: isMediumScreen ? 1 : 1,
                 child: Padding(
@@ -76,17 +94,11 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           // Header Section
                           LoginActiveWidgets.buildHeader(isTablet),
-                          SizedBox(
-                            height: AuthConstants.getResponsiveValue(
-                              isTablet,
-                              AuthConstants.tabletSpacing,
-                              AuthConstants.phoneSpacing,
-                            ),
-                          ),
+                          SizedBox(height: isTablet ? 50 : 40),
 
                           // Heading
                           Text(
-                            'Secure Staff Authentication',
+                            'Verify OTP',
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall
@@ -104,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
 
                           // Subtitle
                           Text(
-                            'Provide your verified credentials to log in securely.',
+                            'Verification code successfully sent to your registered mobile number.',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
@@ -125,10 +137,11 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
 
-                          // Employee ID Input
-                          LoginActiveWidgets.buildEmployeeIdField(
+                          // OTP Input Fields
+                          OTPActiveWidgets.buildOtpInputFields(
                             isTablet,
-                            _employeeIdController,
+                            _otpControllers,
+                            _otpFocusNodes,
                           ),
                           SizedBox(
                             height: AuthConstants.getResponsiveValue(
@@ -138,54 +151,46 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
 
-                          // Stay Signed In Checkbox
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: AuthConstants.getResponsiveValue(
-                                  isTablet,
-                                  28,
-                                  24,
-                                ),
-                                height: AuthConstants.getResponsiveValue(
-                                  isTablet,
-                                  28,
-                                  24,
-                                ),
-                                child: Checkbox(
-                                  value: _staySignedIn,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _staySignedIn = value ?? false;
-                                    });
-                                  },
-                                  fillColor: WidgetStateProperty.all(
-                                    Colors.transparent,
+                          // OTP Sent To
+                          Text(
+                            'OTP sent to: ****7777',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontSize: AuthConstants.getResponsiveValue(
+                                    isTablet,
+                                    AuthConstants.linkFontTablet,
+                                    AuthConstants.linkFontPhone,
                                   ),
-                                  side: BorderSide(
-                                    color: Colors.grey[600]!,
-                                    width: 2,
+                                  color: Colors.grey[400],
+                                ),
+                          ),
+                          SizedBox(height: 12),
+
+                          // Wrong Number Link
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: Text(
+                              'Wrong number? Change number',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    fontSize: AuthConstants.getResponsiveValue(
+                                      isTablet,
+                                      AuthConstants.linkFontTablet,
+                                      AuthConstants.linkFontPhone,
+                                    ),
+                                    color: Colors.blue[400],
+                                    decoration: TextDecoration.underline,
                                   ),
-                                ),
-                              ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'Stay signed in on this device',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontSize: AuthConstants.getResponsiveValue(
-                                          isTablet,
-                                          AuthConstants.labelFontTablet,
-                                          AuthConstants.labelFontPhone,
-                                        ),
-                                        color: Colors.white70,
-                                      ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                           SizedBox(
                             height: AuthConstants.getResponsiveValue(
@@ -195,27 +200,23 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
 
-                          // Generate OTP Button
-                          LoginActiveWidgets.buildGenerateOtpButton(
-                            isTablet,
-                            context,
-                            _employeeIdController.text,
-                          ),
+                          // Verify & Log In Button
+                          OTPActiveWidgets.buildVerifyButton(isTablet),
                           SizedBox(
                             height: AuthConstants.getResponsiveValue(
                               isTablet,
-                              28,
                               20,
+                              16,
                             ),
                           ),
 
-                          // Need Help Link
+                          // Resend OTP Link
                           Align(
                             alignment: Alignment.center,
                             child: TextButton(
                               onPressed: () {},
                               child: Text(
-                                'Need help? Contact Support',
+                                'Resend OTP',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
@@ -225,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
                                         AuthConstants.linkFontTablet,
                                         AuthConstants.linkFontPhone,
                                       ),
-                                      color: Colors.blue[400],
+                                      color: Colors.grey[400],
                                       decoration: TextDecoration.underline,
                                     ),
                               ),
