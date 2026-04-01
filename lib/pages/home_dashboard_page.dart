@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'home_page_widgets/patient_detail_card_widget.dart';
+import 'home_page_widgets/status_strip_widget.dart';
 import 'home_page_widgets/top_menu_widget.dart';
 
 class HomeDashboardPage extends StatelessWidget {
@@ -29,7 +30,7 @@ class HomeDashboardPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildStatusStrip(),
+                    const StatusStripWidget(),
                     const SizedBox(height: 34),
                     const Text(
                       'Patient Details Grid',
@@ -65,72 +66,6 @@ class HomeDashboardPage extends StatelessWidget {
             ),
             _buildFooter(),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusStrip() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF22232B),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          _buildPill('Critical 4', const Color(0xFFFF4747)),
-          const SizedBox(width: 12),
-          _buildPill('Warning 5', const Color(0xFFFFD056)),
-          const SizedBox(width: 12),
-          _buildPill('Stable 6', const Color(0xFF44D17A)),
-          const Spacer(),
-          _buildActionButton('Show All Patients', filled: true),
-          const SizedBox(width: 10),
-          _buildActionButton('View Archives'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPill(String text, Color dotColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.circle, color: dotColor, size: 12),
-          const SizedBox(width: 10),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(String text, {bool filled = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      decoration: BoxDecoration(
-        color: filled ? const Color(0xFFCD9A53) : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: filled ? FontWeight.w700 : FontWeight.w600,
         ),
       ),
     );
