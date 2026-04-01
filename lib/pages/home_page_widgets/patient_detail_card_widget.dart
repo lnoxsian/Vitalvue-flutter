@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class PatientDetailCardWidget extends StatefulWidget {
   final String name;
@@ -46,7 +48,8 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
       ),
       child: Column(
         children: [
-          IntrinsicHeight(
+          SizedBox(
+            height: 164,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -102,6 +105,7 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                     unit: 'bpm',
                     icon: Icons.monitor_heart_outlined,
                     iconBgColor: const Color(0xFF2ECA71),
+                    chartType: 'line_ekg',
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -112,6 +116,7 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                     unit: '%',
                     icon: Icons.air,
                     iconBgColor: const Color(0xFF8B5CF6),
+                    chartType: 'gauge',
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -122,6 +127,7 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                     unit: 'mmHg',
                     icon: Icons.trending_up,
                     iconBgColor: const Color(0xFFEC4899),
+                    chartType: 'bar',
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -132,6 +138,7 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
                     unit: '°C',
                     icon: Icons.thermostat_outlined,
                     iconBgColor: const Color(0xFF3B82F6),
+                    chartType: 'line_curve',
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -353,7 +360,153 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
     required String unit,
     required IconData icon,
     required Color iconBgColor,
+    required String chartType,
   }) {
+    // Generate some mock chart widgets based on type
+    Widget? chartWidget;
+    if (chartType == 'line_ekg') {
+      chartWidget = LineChart(
+        LineChartData(
+          gridData: const FlGridData(show: false),
+          titlesData: const FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
+          lineTouchData: const LineTouchData(enabled: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: const [
+                FlSpot(0, 3),
+                FlSpot(1, 4),
+                FlSpot(1.5, 2),
+                FlSpot(2, 6),
+                FlSpot(2.5, 3),
+                FlSpot(3, 3.5),
+                FlSpot(4, 2),
+                FlSpot(4.5, 5),
+                FlSpot(5, 3),
+                FlSpot(6, 4),
+                FlSpot(6.5, 2),
+                FlSpot(7, 4.5),
+                FlSpot(8, 2.5),
+                FlSpot(9, 3),
+              ],
+              isCurved: false,
+              color: const Color(0xFFC79A54),
+              barWidth: 2,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: false),
+            ),
+          ],
+        ),
+      );
+    } else if (chartType == 'bar') {
+      chartWidget = BarChart(
+        BarChartData(
+          gridData: const FlGridData(show: false),
+          titlesData: const FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
+          barTouchData: BarTouchData(enabled: false),
+          barGroups: List.generate(20, (index) {
+            double h = (index % 3 == 0)
+                ? 6
+                : (index % 2 == 0)
+                ? 4
+                : 2;
+            if (index == 5 || index == 12 || index == 18) h = 8;
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY: h,
+                  color: const Color(0xFFC79A54).withValues(alpha: 0.8),
+                  width: 4,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ],
+            );
+          }),
+        ),
+      );
+    } else if (chartType == 'line_curve') {
+      chartWidget = LineChart(
+        LineChartData(
+          gridData: const FlGridData(show: false),
+          titlesData: const FlTitlesData(show: false),
+          borderData: FlBorderData(show: false),
+          lineTouchData: const LineTouchData(enabled: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: const [
+                FlSpot(0, 1),
+                FlSpot(1, 2),
+                FlSpot(3, 4),
+                FlSpot(5, 1.5),
+                FlSpot(7, 2.5),
+                FlSpot(9, 3),
+              ],
+              isCurved: true,
+              color: const Color(0xFFC79A54),
+              barWidth: 2,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFC79A54).withValues(alpha: 0.3),
+                    const Color(0xFFC79A54).withValues(alpha: 0.0),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (chartType == 'gauge') {
+      double parseVal = double.tryParse(value) ?? 85.0;
+      chartWidget = Transform.scale(
+        scale: 1.25,
+        alignment: Alignment.topCenter,
+        child: SfRadialGauge(
+          axes: <RadialAxis>[
+            RadialAxis(
+              canScaleToFit: true,
+              startAngle: 180,
+              endAngle: 0,
+              showLabels: false,
+              showTicks: true,
+              majorTickStyle: const MajorTickStyle(
+                length: 6,
+                thickness: 1.5,
+                color: Color(0xFFC79A54),
+              ),
+              minorTicksPerInterval: 0,
+              axisLineStyle: AxisLineStyle(
+                thickness: 3,
+                color: const Color(0xFFC79A54).withValues(alpha: 0.3),
+              ),
+              pointers: <GaugePointer>[
+                RangePointer(
+                  value: parseVal,
+                  width: 3,
+                  color: const Color(0xFFC79A54),
+                ),
+                NeedlePointer(
+                  value: parseVal,
+                  needleLength: 0.8,
+                  needleColor: const Color(0xFFC79A54),
+                  needleStartWidth: 0,
+                  needleEndWidth: 4,
+                  knobStyle: const KnobStyle(knobRadius: 0),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -413,19 +566,28 @@ class _PatientDetailCardWidgetState extends State<PatientDetailCardWidget> {
             ],
           ),
           const SizedBox(height: 8),
-          Container(
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  iconBgColor.withValues(alpha: 0.15),
-                  Colors.transparent,
-                ],
+          if (chartWidget != null)
+            SizedBox(
+              height: 36,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: chartWidget,
+              ),
+            )
+          else
+            Container(
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    iconBgColor.withValues(alpha: 0.15),
+                    Colors.transparent,
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
