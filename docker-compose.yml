@@ -1,0 +1,29 @@
+services:
+  flutter-builder:
+    image: ghcr.io/cirruslabs/flutter:stable
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - flutter_pub_cache:/root/.pub-cache
+    environment:
+      BUILD_TARGET: ${BUILD_TARGET:-apk}
+      BUILD_MODE: ${BUILD_MODE:-release}
+      SPLIT_ABI: ${SPLIT_ABI:-false}
+      FLUTTER_VERSION: ${FLUTTER_VERSION:-stable}
+    entrypoint: ["/bin/bash", "-lc"]
+    command: >
+      "set -euo pipefail;
+      flutter --version;
+      flutter pub get;
+      case \"$$BUILD_TARGET\" in apk|appbundle) ;; *) echo \"Invalid BUILD_TARGET: $$BUILD_TARGET (use apk or appbundle)\"; exit 1;; esac;
+      case \"$$BUILD_MODE\" in release|debug|profile) ;; *) echo \"Invalid BUILD_MODE: $$BUILD_MODE (use release, debug, or profile)\"; exit 1;; esac;
+      case \"$$SPLIT_ABI\" in true|false) ;; *) echo \"Invalid SPLIT_ABI: $$SPLIT_ABI (use true or false)\"; exit 1;; esac;
+      build_cmd=\"flutter build $$BUILD_TARGET --$$BUILD_MODE\";
+      if [ \"$$BUILD_TARGET\" = \"apk\" ] && [ \"$$SPLIT_ABI\" = \"true\" ]; then
+        build_cmd=\"$$build_cmd --split-per-abi\";
+      fi;
+      echo \"Running: $$build_cmd\";
+      eval \"$$build_cmd\""
+
+volumes:
+  flutter_pub_cache:
